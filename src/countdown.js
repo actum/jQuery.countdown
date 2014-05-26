@@ -178,6 +178,8 @@
         new Date().getTime(); // In miliseconds
       this.totalSecsLeft = Math.ceil(this.totalSecsLeft / 1000);
       this.totalSecsLeft = this.totalSecsLeft < 0 ? 0 : this.totalSecsLeft;
+      this.totalSecsLeft = this.totalSecsLeft + 
+        (new Date().getTimezoneOffset() * 60);
       // Calculate the offsets
       this.offset = {
         seconds   : this.totalSecsLeft % 60,

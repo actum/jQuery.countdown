@@ -159,6 +159,7 @@
             this.totalSecsLeft = this.finalDate.getTime() - new Date().getTime();
             this.totalSecsLeft = Math.ceil(this.totalSecsLeft / 1e3);
             this.totalSecsLeft = this.totalSecsLeft < 0 ? 0 : this.totalSecsLeft;
+            this.totalSecsLeft = this.totalSecsLeft + new Date().getTimezoneOffset() * 60;
             this.offset = {
                 seconds: this.totalSecsLeft % 60,
                 minutes: Math.floor(this.totalSecsLeft / 60) % 60,
