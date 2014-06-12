@@ -116,7 +116,7 @@
     }
   }
   // The Final Countdown
-  var Countdown = function(el, finalDate, callback) {
+  var Countdown = function(el, finalDate, startDate, callback) {
     this.el       = el;
     this.$el      = $(el);
     this.interval = null;
@@ -132,8 +132,14 @@
       this.$el.on('stoped.countdown', callback);
       this.$el.on('finish.countdown', callback);
     }
-    // Set the final date and start
+    // Set the final date
     this.setFinalDate(finalDate);
+    if (startDate) {
+      // Set the start date
+      this.setStartDate(startDate);
+      this.startDateOffset = new Date().getTime() - this.startDate;
+    }
+    // and start
     this.start();
   };
   $.extend(Countdown.prototype, {
@@ -167,19 +173,24 @@
     setFinalDate: function(value) {
       this.finalDate = parseDateString(value); // Cast the given date
     },
+    setStartDate: function(value) {
+      this.startDate = parseDateString(value); // Cast the given date
+    },
     update: function() {
       // Stop if dom is not in the html (Thanks to @dleavitt)
       if(this.$el.closest('html').length === 0) {
         this.remove();
         return;
       }
-      // Calculate the remaining time
+      // Calculate the remaining time in miliseconds
       this.totalSecsLeft = this.finalDate.getTime() -
-        new Date().getTime(); // In miliseconds
+        new Date().getTime();
+      if (this.startDateOffset) {
+        this.totalSecsLeft = this.totalSecsLeft +
+          this.startDateOffset;
+      }
       this.totalSecsLeft = Math.ceil(this.totalSecsLeft / 1000);
       this.totalSecsLeft = this.totalSecsLeft < 0 ? 0 : this.totalSecsLeft;
-      this.totalSecsLeft = this.totalSecsLeft + 
-        (new Date().getTimezoneOffset() * 60);
       // Calculate the offsets
       this.offset = {
         seconds   : this.totalSecsLeft % 60,
@@ -233,7 +244,7 @@
         }
       } else {
         // ... if not we create an instance
-        new Countdown(this, argumentsArray[0], argumentsArray[1]);
+        new Countdown(this, argumentsArray[0], argumentsArray[1], argumentsArray[2]);
       }
     });
   };
