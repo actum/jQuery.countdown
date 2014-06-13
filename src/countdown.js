@@ -126,6 +126,11 @@
     instances.push(this);
     // Save the reference
     this.$el.data('countdown-instance', this.instanceNumber);
+    // Is startDate omitted?
+    if (typeof startDate === 'function') {
+      callback = startDate;
+      startDate = undefined;
+    }
     // Register the callbacks when supplied
     if(callback) {
       this.$el.on('update.countdown', callback);
@@ -244,7 +249,9 @@
         }
       } else {
         // ... if not we create an instance
-        new Countdown(this, argumentsArray[0], argumentsArray[1], argumentsArray[2]);
+        new Countdown(
+          this, argumentsArray[0], argumentsArray[1], argumentsArray[2]
+        );
       }
     });
   };

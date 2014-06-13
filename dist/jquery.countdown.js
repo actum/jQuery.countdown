@@ -105,7 +105,7 @@
             return plural;
         }
     }
-    var Countdown = function(el, finalDate, callback) {
+    var Countdown = function(el, finalDate, startDate, callback) {
         this.el = el;
         this.$el = $(el);
         this.interval = null;
@@ -113,12 +113,20 @@
         this.instanceNumber = instances.length;
         instances.push(this);
         this.$el.data("countdown-instance", this.instanceNumber);
+        if (typeof startDate === "function") {
+            callback = startDate;
+            startDate = undefined;
+        }
         if (callback) {
             this.$el.on("update.countdown", callback);
             this.$el.on("stoped.countdown", callback);
             this.$el.on("finish.countdown", callback);
         }
         this.setFinalDate(finalDate);
+        if (startDate) {
+            this.setStartDate(startDate);
+            this.startDateOffset = new Date().getTime() - this.startDate;
+        }
         this.start();
     };
     $.extend(Countdown.prototype, {
@@ -151,15 +159,20 @@
         setFinalDate: function(value) {
             this.finalDate = parseDateString(value);
         },
+        setStartDate: function(value) {
+            this.startDate = parseDateString(value);
+        },
         update: function() {
             if (this.$el.closest("html").length === 0) {
                 this.remove();
                 return;
             }
             this.totalSecsLeft = this.finalDate.getTime() - new Date().getTime();
+            if (this.startDateOffset) {
+                this.totalSecsLeft = this.totalSecsLeft + this.startDateOffset;
+            }
             this.totalSecsLeft = Math.ceil(this.totalSecsLeft / 1e3);
             this.totalSecsLeft = this.totalSecsLeft < 0 ? 0 : this.totalSecsLeft;
-            this.totalSecsLeft = this.totalSecsLeft + new Date().getTimezoneOffset() * 60;
             this.offset = {
                 seconds: this.totalSecsLeft % 60,
                 minutes: Math.floor(this.totalSecsLeft / 60) % 60,
@@ -200,7 +213,7 @@
                     $.error("Method %s does not exist on jQuery.countdown".replace(/\%s/gi, method));
                 }
             } else {
-                new Countdown(this, argumentsArray[0], argumentsArray[1]);
+                new Countdown(this, argumentsArray[0], argumentsArray[1], argumentsArray[2]);
             }
         });
     };
